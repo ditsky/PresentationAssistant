@@ -2,3 +2,10 @@ extends layout
 
 block content
   h1 Presentation Assistant
+  br
+  p1 Upload your presentation:
+  br
+  form
+  .form-group
+    label(for='exampleFormControlFile1') upload presentation
+    input#exampleFormControlFile1.form-control-file(type='file')
