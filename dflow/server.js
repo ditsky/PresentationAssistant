@@ -16,7 +16,32 @@ var slide_number=1;
 function changeSlide(direction,distance){
   slide_number=slide_number+(direction*distance);
 }
+/*
+amazon:
+if (req.body.request){
+  return res.json({
+    "version": "string",
 
+    "sessionAttributes": {
+        "key": "value"
+  },
+  "response"{
+    "outputSpeech": {
+        "type": "PlainText",
+        "text": output_string
+      },
+      "reprompt": {
+        "outputSpeech": {
+          "type": "PlainText",
+          "text": "Plain text string to speak reprompt"
+        }
+      },
+      "shouldEndSession": true
+    }
+
+  });
+}
+*/
 function process_request(req, res){
   var output_string="there was an error"
   var direction;
