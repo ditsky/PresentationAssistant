@@ -23,20 +23,13 @@ function process_request(req, res){
   var distance = 1;
   if (req.body.request){
     if (req.body.request.intent.name == "forward_slide") {
-      distance = req.body.request.intent.slots.distance.value;
-      direction = 1;
-      changeSlide(direction,distance);
-      output_string="You are on slide " + slide_number;
+      changeSlide(1,req.body.request.intent.slots.distance.value);
     } else if (req.body.request.intent.name == "back_slide") {
-      distance = req.body.request.intent.slots.distance.value;
-      direction = -1;
-      changeSlide(direction,distance);
-      output_string="You are on slide " + slide_number;
+      changeSlide(-1,req.body.request.intent.slots.distance.value);
     } else if (req.body.request.intent.name == "go_to_slide") {
       slide_number = parseInt(req.body.request.intent.slots.slide.value);
-      console.log(slide_number)
-      output_string="You are on slide " + slide_number;
     }
+    output_string="You are on slide " + slide_number;
     return res.json({
       "version": "string",
 
