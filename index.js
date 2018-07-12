@@ -37,6 +37,32 @@ const keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
 //   });
 // });
 
+var slide = 1;
+var students = [
+  'Sam',
+  'Joseph',
+  'Huaigu',
+  'Marie',
+  'Xuxin',
+  'Arjun',
+  'Casper',
+  'Tim',
+  'Cliffe',
+  'EK',
+  'Gavin',
+  'Jen',
+  'Jialin',
+  'Jierui',
+  'Kelley',
+  'Luis',
+  'Michael',
+  'Sandy',
+  'Spencer',
+  'Xuantong',
+  'Ziqing'
+];
+var selectedStudent = '';
+
 //WEBHOOK CODE
 var bodyParser = require('body-parser');
 
@@ -44,6 +70,14 @@ app.use(bodyParser.json());
 
 app.post('/hook', function(req, res) {
   process_request(req, res);
+  var d = new Date();
+  var time = d.toTimeString();
+  console.log(time);
+  if (req.body.queryResult.intent.displayName == 'randomStudent') {
+    console.log('Selected a random student ' + selectedStudent);
+  } else {
+    console.log('Moved to slide ' + slide);
+  }
 });
 
 function process_request(req, res) {
@@ -54,6 +88,7 @@ function process_request(req, res) {
     if (data && keys.includes(data)) {
       try {
         keySender.sendKey(data);
+        slide++;
       } catch (error) {
         console.log(error);
       }
@@ -77,17 +112,23 @@ function process_request(req, res) {
           array.push(data);
           keySender.sendKeys(array);
         }
+        slide = slideNum;
       } catch (error) {
         console.log(error);
       }
     }
     output_string = 'Moving to slide number ' + slideNum;
+  } else if (req.body.queryResult.intent.displayName == 'randomStudent') {
+    var rand = students[Math.floor(Math.random() * students.length)];
+    output_string = 'Selected ' + rand;
+    selectedStudent = rand;
   } else if (req.body.queryResult.intent.displayName == 'previousSlide') {
     var data = 'up';
     console.log(data);
     if (data && keys.includes(data)) {
       try {
         keySender.sendKey(data);
+        slide--;
       } catch (error) {
         console.log(error);
       }
