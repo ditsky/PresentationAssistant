@@ -25,7 +25,7 @@ const server = require('http').Server(app); // init an http server for socket.io
 const io = require('socket.io')(server);
 
 //only these keys will be activated by node-key-sender
-const keys = ['left', 'right', 'up', 'down', 'space'];
+const keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
 
 // //to serve static files for client
 // app.use(express.static(path.join(__dirname, 'public')));
@@ -59,6 +59,29 @@ function process_request(req, res) {
       }
     }
     output_string = 'Moving to the next slide';
+  } else if (req.body.queryResult.intent.displayName == 'goToSlide') {
+    var slideNum = req.body.queryResult.parameters['number-integer'];
+    var data = 'enter';
+    console.log(data);
+    if (data && keys.includes(data)) {
+      try {
+        if (slideNum < 10) {
+          keySender.sendKeys([slideNum, data]);
+        } else {
+          var slideNumStr = slideNum.toString();
+          var length = slideNumStr.length;
+          var array = [];
+          for (var i = 0; i < length; i++) {
+            array.push(slideNumStr.charAt(i));
+          }
+          array.push(data);
+          keySender.sendKeys(array);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    output_string = 'Moving to slide number ' + slideNum;
   } else if (req.body.queryResult.intent.displayName == 'previousSlide') {
     var data = 'up';
     console.log(data);
