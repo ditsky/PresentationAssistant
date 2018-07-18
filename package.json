@@ -27,5 +27,9 @@
   },
   "devDependencies": {
     "node-key-sender": "^1.0.10"
+  },
+  "engines": {
+    "node": "v10.3.0",
+    "npm": "6.1.0"
   }
 }
