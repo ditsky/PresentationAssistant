@@ -1,9 +1,10 @@
 'use strict';
-const Link = require('../models/link');
+const Link = require('../models/link'),
+  opn = require('opn');
 console.log('loading the link Controller');
 
 // this displays all of the skills
-exports.goToLink = (req, res) => {
+exports.submitLink = (req, res) => {
   //console.log('in getAllLinks');
   Link.find({})
     .exec()
@@ -16,6 +17,18 @@ exports.goToLink = (req, res) => {
     })
     .then(() => {
       console.log('link promise complete');
+    });
+};
+
+exports.goToLink = (req, res) => {
+  Link.find({})
+    .exec()
+    .then(links => {
+      opn(links[0].url);
+    })
+    .catch(error => {
+      console.log(error.message);
+      return [];
     });
 };
 

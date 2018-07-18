@@ -18,6 +18,7 @@ const cookieParser = require('cookie-parser'),
   logger = require('morgan'),
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
+  auth = require('./config/auth'),
   keySender = require('node-key-sender'),
   ip = require('ip'),
   qrcode = require('qrcode-terminal'),
@@ -51,7 +52,13 @@ keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
 // });
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/PresentationAssistant');
+mongoose.connect(
+  'mongodb://' +
+    auth.mlab.dbuser +
+    ':' +
+    auth.mlab.dbpassword +
+    '@ds141671.mlab.com:41671/heroku_rq4mxj0w'
+);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -73,7 +80,7 @@ web.use(flash());
 // so don't name your routes so they conflict with the public folders
 web.use(express.static(path.join(__dirname, 'public')));
 
-web.get('/url', linkController.goToLink);
+web.get('/url', linkController.submitLink);
 web.post('/saveLink', linkController.saveLink);
 
 web.use('/', function(req, res, next) {
@@ -168,8 +175,7 @@ function process_request(req, res) {
     output_string = 'Selected ' + rand;
     selectedStudent = rand;
   } else if (req.body.queryResult.intent.displayName == 'goToLink') {
-    var url = req.body.queryResult.parameters['url'];
-    opn(url);
+    linkController.goToLink();
     output_string = 'opening the link';
   } else if (req.body.queryResult.intent.displayName == 'previousSlide') {
     var data = 'up';
