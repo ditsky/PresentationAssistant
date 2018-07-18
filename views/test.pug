@@ -3,16 +3,13 @@ extends layout
 block content
   h1 Presentation Assistant
   br
-  p1 Upload your presentation:
+  p1 Upload your url:
   br
-  form
-  .form-group
-    label(for='exampleFormControlFile1') TEST
-    input#exampleFormControlFile1.form-control-file(type='file')
+  
       
   form(method="post" action="saveLink")
     .form-group
-      label(for='exampleInputEmail1') URLS
+      label(for='exampleInputEmail1') URL
       input#exampleInputEmail1.form-control(name='url' type='url' aria-describedby='urlHelp' placeholder='Enter url')
     button.btn.btn-primary(type='submit') Submit
   
