@@ -28,10 +28,14 @@ const cookieParser = require('cookie-parser'),
   voice = express(), //initialize an express server for gui
   web = express(), //initialize an express server for vui
   // socket = express(), //initialize an express server for socket.io
-  server = require('http').Server(voice), // init an http server for dialogflow
-  // socketServer = require('http').Server(socket), // init an http server for socket.io
-  // io = require('socket.io')(socketServer), // not needed for now
-  herokuPORT = process.env.PORT; // THIS IS HEROKU'S PORT NUMBER
+  server = require('http').Server(voice); // init an http server for dialogflow
+// socketServer = require('http').Server(socket), // init an http server for socket.io
+// io = require('socket.io')(socketServer), // not needed for now
+
+server.listen(process.env.PORT, function() {
+  // let the dialogflow's server listen to heroku's port
+  console.log('API server listening...');
+});
 
 //only these keys will be activated by node-key-sender
 keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
