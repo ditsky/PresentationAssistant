@@ -273,9 +273,9 @@ keySender.execute = function(arrParams) {
 //   }
 //   //use default port, if input is invalid
 //   const port = result ? result.portNumber : 8081;
-server.listen(herokuPORT, function() {
-  console.log('API server listening...');
-});
+// server.listen(herokuPORT, function() {
+//   console.log('API server listening...');
+// });
 // });
 
 // // catch 404 and forward to error handler
