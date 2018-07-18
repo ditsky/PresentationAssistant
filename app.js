@@ -163,7 +163,7 @@ function process_request(req, res) {
     var rand = students[Math.floor(Math.random() * students.length)];
     output_string = 'Selected ' + rand;
     selectedStudent = rand;
-  } else if (req.body.queryResult.intent.displayName == 'link') {
+  } else if (req.body.queryResult.intent.displayName == 'goToLink') {
     var url = req.body.queryResult.parameters['url'];
     opn(url);
     output_string = 'opening the link';
