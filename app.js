@@ -70,13 +70,16 @@ web.use(flash());
 // so don't name your routes so they conflict with the public folders
 web.use(express.static(path.join(__dirname, 'public')));
 
-web.get('/test', linkController.goToLink);
+//web.get('/test', linkController.goToLink);
 web.post('/saveLink', linkController.saveLink);
 
 web.use('/', function(req, res, next) {
   res.render('index');
 });
 
+web.use('/test', function(req, res, next) {
+  res.render('test');
+});
 
 var slide = 1;
 var students = [
@@ -104,9 +107,6 @@ var students = [
 ];
 var selectedStudent = '';
 
-function getLink(link){
-
-}
 
 //WEBHOOK CODE
 var bodyParser = require('body-parser');
