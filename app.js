@@ -54,9 +54,9 @@ keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
 const mongoose = require('mongoose');
 mongoose.connect(
   'mongodb://' +
-    ENV['mlab_dbuser'] +
+    process.env.mlab_dbuser +
     ':' +
-    ENV['mlab.dbpassword'] +
+    process.env.mlab_dbpassword +
     '@ds141671.mlab.com:41671/heroku_rq4mxj0w'
 );
 const db = mongoose.connection;
