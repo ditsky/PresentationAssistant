@@ -8,7 +8,7 @@ exports.goToLink = (req, res) => {
   Link.find({})
     .exec()
     .then(links => {
-      res.render('test', { links: links });
+      res.render('url', { links: links });
     })
     .catch(error => {
       console.log(error.message);
@@ -28,7 +28,7 @@ exports.saveLink = (req, res) => {
   newLink
     .save()
     .then(() => {
-      res.redirect('/test');
+      res.redirect('/url');
     })
     .catch(error => {
       res.send(error);
