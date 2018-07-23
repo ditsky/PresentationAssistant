@@ -20,6 +20,7 @@ const
   logger = require('morgan'),
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
+  studentsController = require('./controllers/studentsController'),
   keySender = require('node-key-sender'),
   ip = require('ip'),
   qrcode = require('qrcode-terminal'),
@@ -71,7 +72,10 @@ web.use(flash());
 web.use(express.static(path.join(__dirname, 'public')));
 
 //web.get('/test', linkController.goToLink);
+web.get('/url', linkController.getAllLinks, studentsController.getAllStudents);
 web.post('/saveLink', linkController.saveLink);
+web.post('/saveStudent', studentsController.saveStudent);
+
 
 web.use('/', function(req, res, next) {
   res.render('index');
@@ -111,7 +115,6 @@ var selectedStudent = '';
 //WEBHOOK CODE
 var bodyParser = require('body-parser');
 
-
 voice.use(bodyParser.json());
 
 voice.post('/hook', function(req, res) {
@@ -127,6 +130,7 @@ voice.post('/hook', function(req, res) {
 });
 
 function process_request(req, res) {
+  var has_async = false;
   var output_string = 'there was an error';
   if (req.body.queryResult.intent.displayName == 'nextSlide') {
     var data = 'down';
@@ -165,11 +169,44 @@ function process_request(req, res) {
     }
     output_string = 'Moving to slide number ' + slideNum;
   } else if (req.body.queryResult.intent.displayName == 'randomStudent') {
-    var rand = students[Math.floor(Math.random() * students.length)];
-    output_string = 'Selected ' + rand;
-    selectedStudent = rand;
+    var rand = "";
+    has_async = true;
+    /*
+    const Student = require( './models/student' );
+    Student.find( {} )
+      .exec()
+      .then( ( students ) => {
+        rand = students[Math.floor(Math.random() * students.length)].name;
+        callback(null, rand);
+
+      } )
+      .catch( ( error ) => {
+        console.log( error.message );
+        callback(error);
+      } )
+      .then( () => {
+        console.log('student promise complete')
+      } );
+      output_string = 'Selected ' + rand;*/
+
+    studentsController.randomStudent(function(err, rand){
+      if(err){
+        res.status(err.status || 500);
+        res.json(err);
+      } else {
+        output_string = 'Selected ' + rand;
+        res.json({
+         fulfillmentMessages: [],
+         fulfillmentText: output_string,
+         payload: { slack: { text: output_string } },
+         outputContexts: [],
+         source: 'Test Source',
+         followupEventInput: {}
+       });
+      }
+    });
   } else if (req.body.queryResult.intent.displayName == 'link') {
-    var url = req.body.queryResult.parameters['url'];
+    //var url = req.body.queryResult.parameters['url'];
     //opn(url);
     linkController.goToLink();
     output_string = 'we out here';
@@ -189,14 +226,17 @@ function process_request(req, res) {
   } else {
     output_string = 'oh noooooooooooooo';
   }
-  return res.json({
-    fulfillmentMessages: [],
-    fulfillmentText: output_string,
-    payload: { slack: { text: output_string } },
-    outputContexts: [],
-    source: 'Test Source',
-    followupEventInput: {}
-  });
+
+  if(!has_async){
+    return res.json({
+      fulfillmentMessages: [],
+      fulfillmentText: output_string,
+      payload: { slack: { text: output_string } },
+      outputContexts: [],
+      source: 'Test Source',
+      followupEventInput: {}
+    });
+  }
 }
 //WEBHOOK CODE ENDS
 
