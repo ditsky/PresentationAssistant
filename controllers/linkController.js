@@ -22,16 +22,15 @@ exports.getAllLinks = ( req, res ) => {
 };
 
 // this displays all of the skills
-exports.goToLink = ( req, res ) => {
-  console.log('in gotolink')
-  Link.find( {} )
+exports.goToLink = (req, res) => {
+  //console.log('in getAllLinks');
+  Link.find({})
     .exec()
-    .then( ( links ) => {
-      console.log(links[1].url)
-      opn(links[1].url);
-    } )
-    .catch( ( error ) => {
-      console.log( error.message );
+    .then(links => {
+      res.render('url', { links: links });
+    })
+    .catch(error => {
+      console.log(error.message);
       return [];
     } )
     .then( () => {
@@ -39,12 +38,11 @@ exports.goToLink = ( req, res ) => {
     } );
 };
 
-exports.saveLink = ( req, res ) => {
-  //console.log("in saveGame!")
+exports.saveLink = (req, res) => {
   //console.dir(req)
-  let newLink = new Link( {
+  let newLink = new Link({
     url: req.body.url
-  } )
+  });
 
   newLink.save()
     .then( () => {

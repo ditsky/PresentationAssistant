@@ -14,9 +14,7 @@ if (
 
 const opn = require('opn');
 
-
-const
-  cookieParser = require('cookie-parser'),
+const cookieParser = require('cookie-parser'),
   logger = require('morgan'),
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
@@ -28,13 +26,16 @@ const
   path = require('path'),
   exec = require('child_process').exec,
   express = require('express'),
-  voice = express(); //initialize an express server for gui
-  web = express(); //initialize an express server for vui
-  server = require('http').Server(voice), // init an http server for socket.io
-  io = require('socket.io')(server)
+  voice = express(), //initialize an express server for gui
+  web = express(), //initialize an express server for vui
+  // socket = express(), //initialize an express server for socket.io
+  server = require('http').Server(voice), // init an http server for dialogflow
+  // socketServer = require('http').Server(socket), // init an http server for socket.io
+  // io = require('socket.io')(socketServer), // not needed for now
+  herokuPORT = process.env.PORT; // THIS IS HEROKU'S PORT NUMBER
 
-  //only these keys will be activated by node-key-sender
-  keys = ['left', 'right', 'up', 'down', 'space', 'enter']
+//only these keys will be activated by node-key-sender
+keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
 
 // //to serve static files for client
 // web.use(express.static(path.join(__dirname, 'public')));
@@ -46,13 +47,12 @@ const
 //   });
 // });
 
-
-const mongoose = require( 'mongoose' );
-mongoose.connect( 'mongodb://localhost/PresentationAssistant' );
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/PresentationAssistant');
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  console.log("we are connected!")
+  console.log('we are connected!');
 });
 
 // view engine setup
@@ -66,23 +66,17 @@ web.use(express.urlencoded({ extended: false }));
 web.use(cookieParser());
 web.use(flash());
 
-
 // this handles all static routes ...
 // so don't name your routes so they conflict with the public folders
 web.use(express.static(path.join(__dirname, 'public')));
 
-//web.get('/test', linkController.goToLink);
-web.get('/url', linkController.getAllLinks, studentsController.getAllStudents);
+web.get('/url', linkController.goToLink);
 web.post('/saveLink', linkController.saveLink);
 web.post('/saveStudent', studentsController.saveStudent);
 
 
 web.use('/', function(req, res, next) {
   res.render('index');
-});
-
-web.use('/test', function(req, res, next) {
-  res.render('test');
 });
 
 var slide = 1;
@@ -287,58 +281,58 @@ keySender.execute = function(arrParams) {
 // });
 
 //init schema for user input
-const schema = {
-  properties: {
-    portNumber: {
-      description: 'Type a port number - Press Enter to start with -> ',
-      default: '8080',
-      conform: function(value) {
-        if (/^[0-9]+$/.test(value)) {
-          //check whether the requested port is in protected range.
-          if (value >= 1024 && value <= 65535) return true;
-          else {
-            schema.properties.portNumber.message =
-              'Port Number should be within (1024 - 65535) Due to root privilege requirement ';
-            return false;
-          }
-        } else {
-          schema.properties.portNumber.message =
-            'Port number should be only numbers';
-          return false;
-        }
-      }
-    }
-  }
-};
+// const schema = {
+//   properties: {
+//     portNumber: {
+//       description: 'Type a port number - Press Enter to start with -> ',
+//       default: '8080',
+//       conform: function(value) {
+//         if (/^[0-9]+$/.test(value)) {
+//           //check whether the requested port is in protected range.
+//           if (value >= 1024 && value <= 65535) return true;
+//           else {
+//             schema.properties.portNumber.message =
+//               'Port Number should be within (1024 - 65535) Due to root privilege requirement ';
+//             return false;
+//           }
+//         } else {
+//           schema.properties.portNumber.message =
+//             'Port number should be only numbers';
+//           return false;
+//         }
+//       }
+//     }
+//   }
+// };
 
 //prompt for port to run the server
-prompt.start();
-prompt.get(schema, function(err, result) {
-  //if result is undefined, ie. user tried to key combo to exit or some BS. exit the web
-  if (!result) {
-    process.exit(0);
-  }
-  //use default port, if input is invalid
-  const port = result ? result.portNumber : 8081;
-  server.listen(port, function() {
-    console.log('API server listening...');
-  });
+// prompt.start();
+// prompt.get(schema, function(err, result) {
+//   //if result is undefined, ie. user tried to key combo to exit or some BS. exit the web
+//   if (!result) {
+//     process.exit(0);
+//   }
+//   //use default port, if input is invalid
+//   const port = result ? result.portNumber : 8081;
+server.listen(herokuPORT, function() {
+  console.log('API server listening...');
 });
+// });
 
-// catch 404 and forward to error handler
-web.use(function(req, res, next) {
-  next(createError(404));
-});
+// // catch 404 and forward to error handler
+// web.use(function(req, res, next) {
+//   next(createError(404));
+// });
 
-// error handler
-web.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+// // error handler
+// web.use(function(err, req, res, next) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+//   // render the error page
+//   res.status(err.status || 500);
+//   res.render('error');
+// });
 
 module.exports = web;

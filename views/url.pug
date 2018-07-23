@@ -9,14 +9,7 @@ block content
       
   form(method="post" action="saveLink")
     .form-group
-      label URL:
-      input.form-control(name='url' type='url' aria-describedby='urlHelp' placeholder='Enter url')
-      label Name:
-      input.form-control(name='name' placeholder='Enter Name')
+      label(for='exampleInputEmail1') URL
+      input#exampleInputEmail1.form-control(name='url' type='url' aria-describedby='urlHelp' placeholder='Enter url')
     button.btn.btn-primary(type='submit') Submit
   
-  form(method="post" action="saveStudent")
-    .form-group
-      label Students:
-      input.form-control(name='sname' placeholder='Enter student')
-    button.btn.btn-primary(type='submit') Submit
