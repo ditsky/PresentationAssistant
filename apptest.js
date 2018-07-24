@@ -14,7 +14,7 @@ const
 
 
 var app = express(); //initialize an express server for gui
-
+var slide = 1; //current slide number
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/PresentationAssistant');
@@ -40,57 +40,76 @@ app.use(bodyParser.json());
 // so don't name your routes so they conflict with the public folders
 app.use(express.static(path.join(__dirname, 'public')));
 
-function process_request(req, res){
-  console.log('recieved request')
-  if (req.body.msg == 'next'){
-    var data = 'down';
-    console.log(data);
-    if (data && keys.includes(data)) {
-      try {
-        keySender.sendKey(data);
-        slide++;
-      } catch (error) {
-        console.log(error);
-      }
+//Hits the down key on the user's keyboard
+function nextSlide(){
+  var data = 'down';
+  console.log(data);
+  if (data && keys.includes(data)) {
+    try {
+      keySender.sendKey(data);
+      slide++;
+    } catch (error) {
+      console.log(error);
     }
+  }
+}
+
+//Hits the up key on the user's keyboard
+function backSlide(){
+  var data = 'up';
+  console.log(data);
+  if (data && keys.includes(data)) {
+   try {
+     keySender.sendKey(data);
+     slide--;
+   } catch (error) {
+     console.log(error);
+   }
+  }
+}
+
+//Uses the slide number from the request to first type the slide number
+//Then hit the enter key since in ppt "number+enter" goes to that slide number
+function goTo(slideNum){
+  var data = 'enter';
+  console.log(data);
+  if (data && keys.includes(data)) {
+    try {
+      if (slideNum < 10) {
+        keySender.sendKeys([slideNum, data]);
+      } else {
+        var slideNumStr = slideNum.toString();
+        var length = slideNumStr.length;
+        var array = [];
+        for (var i = 0; i < length; i++) {
+          array.push(slideNumStr.charAt(i));
+        }
+        array.push(data);
+        keySender.sendKeys(array);
+      }
+      slide = slideNum;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+
+
+function process_request(req, res){
+  console.log('recieved request: ')
+  console.log(req.body)
+  if (req.body.msg == 'next'){
+    nextSlide();
   } else if (req.body.msg == 'goTo'){
     var slideNum = req.body.num;
-    var data = 'enter';
-    console.log(data);
-    if (data && keys.includes(data)) {
-      try {
-        if (slideNum < 10) {
-          keySender.sendKeys([slideNum, data]);
-        } else {
-          var slideNumStr = slideNum.toString();
-          var length = slideNumStr.length;
-          var array = [];
-          for (var i = 0; i < length; i++) {
-            array.push(slideNumStr.charAt(i));
-          }
-          array.push(data);
-          keySender.sendKeys(array);
-        }
-        slide = slideNum;
-      } catch (error) {
-        console.log(error);
-      }
-    }
+    goTo(slideNum);
   } else if (req.body.msg == 'back'){
-    var data = 'up';
-   console.log(data);
-   if (data && keys.includes(data)) {
-     try {
-       keySender.sendKey(data);
-       slide--;
-     } catch (error) {
-       console.log(error);
-     }
-   }
- }
- return res.json({
+    backSlide();
+  }
+  return res.json({
    "msg": "completed"
- });
+  });
 }
 
 app.post('/get', function(req,res){
