@@ -1,6 +1,7 @@
 'use strict';
-const Link = require('../models/link'),
-  opn = require('opn');
+const Link = require('../models/link');
+const Student = require('../models/student');
+const opn = require('opn');
 
 // this displays all of the skills
 exports.submitLink = (req, res) => {
@@ -40,7 +41,22 @@ exports.saveLink = (req, res) => {
   newLink
     .save()
     .then(() => {
-      res.redirect('/url');
+      res.render('url');
+    })
+    .catch(error => {
+      res.send(error);
+    });
+};
+
+exports.saveStudent = (req, res) => {
+  let newStudent = new Student({
+    name: req.body.student
+   });
+
+  newStudent
+    .save()
+    .then(() => {
+      res.render('url');
     })
     .catch(error => {
       res.send(error);

@@ -94,7 +94,23 @@ function goTo(slideNum){
   }
 }
 
+function raiseVolume(){
+  console.log('raising volume')
+  keySender.sendCombination(['meta', 'f12']);
+}
 
+function random(){
+  console.log('picking random student')
+}
+
+function link(){
+  console.log('opening link')
+}
+
+function createCode(){
+  var val = Math.floor(1000 + Math.random() * 9000);
+  return val;
+}
 
 function process_request(req, res){
   console.log('recieved request: ')
@@ -106,6 +122,20 @@ function process_request(req, res){
     goTo(slideNum);
   } else if (req.body.msg == 'back'){
     backSlide();
+  } else if (req.body.msg == 'link'){
+    link();
+  } else if (req.body.msg == 'random'){
+    random();
+    return res.json({
+     "msg": "Marie"
+    });
+  } else if (req.body.msg == 'raiseVolume') {
+    raiseVolume();
+  } else {
+    console.log('no command recieved')
+    return res.json({
+     "msg": "failed"
+    });
   }
   return res.json({
    "msg": "completed"
@@ -124,6 +154,7 @@ app.get('/connection', function(req,res){
 app.post('/sendUserData', connectionController.sendUserData);
 app.get('/url', linkController.submitLink);
 app.post('/saveLink', linkController.saveLink);
+app.post('/saveStudent', linkController.saveStudent);
 
 app.use('/', function(req, res) {
   res.render('index');

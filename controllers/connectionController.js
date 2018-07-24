@@ -9,8 +9,9 @@ exports.sendUserData = (req, res) => {
     code: req.body.code,
     userID: 'placeholder'
   });
-  axios.post('https://speechflow.herokuapp.com/hook',newConnection)
+  axios.post('https://speechflow.herokuapp.com/users',newConnection)
     .then(response => {
+      res.redirect('index');
       console.log('sent');
     })
     .catch(error => {
