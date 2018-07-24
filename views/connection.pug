@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1 Presentation Assistant
+  br
+  p1 Upload your data:
+  br
+  
+      
+  form(method="post" action="sendUserData")
+    .form-group
+      input.form-control(name='ngrok' placeholder='Enter ngrok url')
+      br
+      input.form-control(name='code' placeholder='Enter code')
+    button.btn.btn-primary(type='submit') Submit

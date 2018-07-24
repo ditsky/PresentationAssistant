@@ -2,14 +2,19 @@ const
   createError = require('http-errors'),
   cookieParser = require('cookie-parser'),
   logger = require('morgan'),
+  axios = require('axios'),
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
+  connectionController = require('./controllers/connectionController'),
   //auth = require('./config/auth'),
   bodyParser = require('body-parser')
   path = require('path'),
   exec = require('child_process').exec,
-  express = require('express'),
-  web = express(); //initialize an express server for gui
+  express = require('express')
+
+
+var app = express(); //initialize an express server for gui
+
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/PresentationAssistant');
@@ -20,19 +25,20 @@ db.once('open', function() {
 });
 
 // view engine setup
-web.set('views', path.join(__dirname, 'views'));
-web.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
 //middleware to process the req object and make it more useful!
-web.use(logger('dev'));
-web.use(express.json());
-web.use(express.urlencoded({ extended: false }));
-web.use(cookieParser());
-web.use(flash());
-web.use(bodyParser.json());
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(flash());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 // this handles all static routes ...
 // so don't name your routes so they conflict with the public folders
-web.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 function process_request(req, res){
   console.log('recieved request')
@@ -87,27 +93,30 @@ function process_request(req, res){
  });
 }
 
-web.post('/get', function(req,res){
+app.post('/get', function(req,res){
   console.log('inside /get')
   console.log(JSON.stringify(req.body, null, 2));
   process_request(req,res)
 });
 
+app.get('/connection', function(req,res){
+  res.render('connection');
+});
+app.post('/sendUserData', connectionController.sendUserData);
+app.get('/url', linkController.submitLink);
+app.post('/saveLink', linkController.saveLink);
 
-web.get('/url', linkController.submitLink);
-web.post('/saveLink', linkController.saveLink);
-
-web.use('/', function(req, res, next) {
+app.use('/', function(req, res) {
   res.render('index');
 });
 
 // catch 404 and forward to error handler
-web.use(function(req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-web.use(function(err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -117,4 +126,4 @@ web.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = web;
+module.exports = app;

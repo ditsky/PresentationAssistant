@@ -1,7 +1,6 @@
 'use strict';
 const Link = require('../models/link'),
   opn = require('opn');
-console.log('loading the link Controller');
 
 // this displays all of the skills
 exports.submitLink = (req, res) => {
