@@ -4,9 +4,9 @@ const mongoose = require( 'mongoose' );
 //var userSchema = mongoose.Schema( {any:{}})
 
 var connectionSchema = mongoose.Schema( {
-  ngrok: String,
+  userID: String,
   code: String,
-  userID: String
+  ngrok: String
 } );
 
-module.exports = mongoose.model( 'Connection', connectionSchema );
+module.exports = mongoose.model( 'connection', connectionSchema );
