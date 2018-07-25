@@ -1,4 +1,4 @@
-function createCode(){
+function newCode(){
   const val = Math.round(10000000*Math.random())
   return val;
 }
