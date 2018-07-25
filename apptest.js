@@ -1,6 +1,7 @@
 const
   createError = require('http-errors'),
   cookieParser = require('cookie-parser'),
+  keySender = require('node-key-sender'),
   logger = require('morgan'),
   axios = require('axios'),
   flash = require('connect-flash'),
@@ -15,6 +16,11 @@ const
 
 var app = express(); //initialize an express server for gui
 var slide = 1; //current slide number
+
+const keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
+
+
+
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/PresentationAssistant');
@@ -40,11 +46,44 @@ app.use(bodyParser.json());
 // so don't name your routes so they conflict with the public folders
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+//Monkey patching the node-key-sender library to fix jar path issues
+keySender.execute = function(arrParams) {
+  return new Promise(function(resolve, reject) {
+    //path where the jar file resides
+    const jarPath = path.join(
+      __dirname,
+      'node_modules',
+      'node-key-sender',
+      'jar',
+      'key-sender.jar'
+    );
+    //generate command to execute the jar file
+    //original command with path in quotes replace with path without enclosed in quotes
+    const command =
+      'java -jar ' +
+      jarPath +
+      ' ' +
+      arrParams.join(' ') +
+      keySender.getCommandLineOptions();
+
+    return exec(command, {}, function(error, stdout, stderr) {
+      if (error == null) {
+        resolve(stdout, stderr);
+      } else {
+        reject(error, stdout, stderr);
+      }
+    });
+  });
+};
+
 //Hits the down key on the user's keyboard
 function nextSlide(){
   var data = 'down';
   console.log(data);
-  if (data && keys.includes(data)) {
+  console.dir(keys)
+  if (data && keys && keys.includes(data)) {
+
     try {
       keySender.sendKey(data);
       slide++;
@@ -99,20 +138,21 @@ function raiseVolume(){
   keySender.sendCombination(['meta', 'f12']);
 }
 
+function findNgrok(){
+
+}
+
 function random(){
   console.log('picking random student')
 }
 
-function link(){
-  console.log('opening link')
+function link(url){
+
+  console.log(url)
 }
 
-function createCode(){
-  var val = Math.floor(1000 + Math.random() * 9000);
-  return val;
-}
-
-function process_request(req, res){
+function process_request(req, res, next){
+  res.locals.output = "Completed"
   console.log('recieved request: ')
   console.log(req.body)
   if (req.body.msg == 'next'){
@@ -123,29 +163,28 @@ function process_request(req, res){
   } else if (req.body.msg == 'back'){
     backSlide();
   } else if (req.body.msg == 'link'){
-    link();
+    let link = new Link({
+      url: req.body.link
+    })
+    link(link.url);
   } else if (req.body.msg == 'random'){
     random();
-    return res.json({
-     "msg": "Marie"
-    });
+    res.locals.output = "Sam"
   } else if (req.body.msg == 'raiseVolume') {
     raiseVolume();
   } else {
     console.log('no command recieved')
-    return res.json({
-     "msg": "failed"
-    });
+    res.locals.output = "Failed"
   }
-  return res.json({
-   "msg": "completed"
-  });
+  console.log('before next')
+  next()
 }
 
-app.post('/get', function(req,res){
+app.post('/get', process_request, function(req,res){
   console.log('inside /get')
   console.log(JSON.stringify(req.body, null, 2));
-  process_request(req,res)
+  console.dir(res.locals.output)
+  res.json({"msg": res.locals.output});
 });
 
 app.get('/connection', function(req,res){
