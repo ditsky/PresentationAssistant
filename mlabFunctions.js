@@ -1,10 +1,10 @@
-function newCode(){
+exports.newCode(){
   const val = Math.round(10000000*Math.random())
   return val;
 }
 
 //recieving ngrok from laptop
-function updateNgrok(code){
+exports.updateNgrok(code){
 	Connections.update({code:code}, {$set:{ngrok:ngrok}})
 	.then(res.send('updated'))
   .error(res.send('error'+error));
@@ -12,14 +12,14 @@ function updateNgrok(code){
 
 
 //recieving userID from phone
-function updateUser(req,res,next){
+exports.updateUser(req,res,next){
   Connections.update({code:code}, {$set:{userID:userID}})
     .then(res.send('updated'))
     	next()
     .error(res.send('error: '+ error));
 }
 
-function createUser(userID){
+exports.createUser(userID){
 	const code = newCode();
         //res.json(code)
         let newConnection = new Connection({
@@ -32,7 +32,7 @@ function createUser(userID){
 
 
 //send command to laptop
-function sendCommand(req,res,next){
+exports.sendCommand(req,res,next){
   if (req.body.queryResult.intent.displayName == 'connect') {
   	res.locals.output_string = 'please enter code: '+res.locals.connection.code;
     next()
@@ -99,7 +99,7 @@ function sendCommand(req,res,next){
 }
 
 //find ngrok code
-function attachConnection(req,res,next){
+exports.attachConnection(req,res,next){
 	console.dir(req.body)
 	Connections.find({userID:req.body.userID})
 	.exec()

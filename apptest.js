@@ -19,9 +19,6 @@ var slide = 1; //current slide number
 
 const keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
 
-
-
-
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/PresentationAssistant');
 const db = mongoose.connection;
@@ -143,6 +140,7 @@ function findNgrok(){
 }
 
 function random(){
+  
   console.log('picking random student')
 }
 
