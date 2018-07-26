@@ -18,7 +18,7 @@ const
 var app = express(); //initialize an express server for gui
 var slide = 1; //current slide number
 
-const keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
+const keys = ['left', 'right', 'up', 'down', 'space', 'enter', 'control', 'w'];
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/PresentationAssistant');
@@ -148,6 +148,19 @@ function space(){
   }
 }
 
+function closeWindow(){
+  var ctrl = 'control';
+  var w = 'w';
+  console.log(ctrl+w);
+  if (ctrl && w && keys.includes(ctrl) && keys.includes(w)) {
+   try {
+     keySender.sendCombination([ctrl,w]);
+   } catch (error) {
+     console.log(error);
+   }
+  }
+}
+
 function random(){
 
   console.log('picking random student')
@@ -163,7 +176,7 @@ function link(name){
     })
   .catch(error => {
     console.log(error.message);
-    res.locals.output_string = "the "+ name " link has not been entered"
+    res.locals.output = "the link has not been entered"
   })
   console.log(url)
 }
@@ -187,6 +200,8 @@ function process_request(req, res, next){
     res.locals.output = "Sam"
   } else if (req.body.msg == "space"){
     space();
+  } else if (req.body.msg == "closeWindow"){
+    closeWindow();
   } else if (req.body.msg == 'raiseVolume') {
     raiseVolume();
   } else {
