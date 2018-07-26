@@ -35,6 +35,7 @@ exports.goToLink = (req, res) => {
 exports.saveLink = (req, res) => {
   //console.dir(req)
   let newLink = new Link({
+    name: req.body.name,
     url: req.body.url
   });
 

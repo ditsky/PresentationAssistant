@@ -136,8 +136,16 @@ function raiseVolume(){
   keySender.sendCombination(['meta', 'f12']);
 }
 
-function findNgrok(){
-
+function space(){
+  var data = 'space';
+  console.log(data);
+  if (data && keys.includes(data)) {
+   try {
+     keySender.sendKey(data);
+   } catch (error) {
+     console.log(error);
+   }
+  }
 }
 
 function random(){
@@ -145,8 +153,18 @@ function random(){
   console.log('picking random student')
 }
 
-function link(url){
-  opn(url)
+function link(name){
+  const Link = require('./models/link');
+  Link.find({name:name})
+	.exec()
+  .then(links => {
+    console.log(links[0].url)
+    opn(links[0].url)
+    })
+  .catch(error => {
+    console.log(error.message);
+    res.locals.output_string = "the "+ name " link has not been entered"
+  })
   console.log(url)
 }
 
@@ -162,14 +180,13 @@ function process_request(req, res, next){
   } else if (req.body.msg == 'back'){
     backSlide();
   } else if (req.body.msg == 'link'){
-    let link = new Link({
-      url: req.body.link
-    })
-    link(link.url);
+    link(req.body.name);
     res.locals.output = "opening link"
   } else if (req.body.msg == 'random'){
     random();
     res.locals.output = "Sam"
+  } else if (req.body.msg == "space"){
+    space();
   } else if (req.body.msg == 'raiseVolume') {
     raiseVolume();
   } else {

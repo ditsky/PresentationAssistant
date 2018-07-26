@@ -13,8 +13,9 @@ exports.sendUserData = (req, res) => {
   //https://ad4cc64c.ngrok.io/users
   axios.post('https://speechflow.herokuapp.com/users',newConnection)
     .then(response => {
-      res.redirect('index');
       console.log('sent');
+      console.log(response.data.msg);
+      res.render('connection', { response: 'You are Connected!' });
     })
     .catch(error => {
       console.log(error);
