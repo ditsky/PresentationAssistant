@@ -1,16 +1,82 @@
-extends layout
+extends layoutBS
 
 block content
-  h1 Speech Flow
-  br
-  p1 Upload your presentation:
-  br
-  form
-  .form-group
-    label(for='exampleFormControlFile1') upload presentation
-    input.form-control-file(type='file')
+  #carouselExampleControls.carousel.slide(data-ride='carousel')
+    .carousel-inner
+      .carousel-item.active
+        header.masthead.text-center.text-white.d-flex
+          .container.my-auto
+            .row
+              .col-lg-10.mx-auto
+                h1.text-uppercase
+                  strong Your Favorite Source for voice control presentations
+                hr
+              .col-lg-8.mx-auto
+                p.text-faded.mb-5
+                  | SpeechFlow has been a trusted program for efficient lectures since 2018. From day one, we've set about making it as easy, fun and fair as possible for you to provide quality lectures.
+                a.btn.btn-primary.btn-xl.js-scroll-trigger(href="/about") Enter your code
+      .carousel-item
+        header.masthead.text-center.text-white.d-flex
+          .container.my-auto
+            .row
+              .col-lg-12.text-center
+                h2.section-heading At Your Service
+                hr.my-4
+            .row
+              .col-lg-4.col-md-6.text-center
+                .service-box.mt-5.mx-auto.team-member
+                  h3.mb-3 Pull up materials
+                  p.text-faded.mb-5 Speech Flow helps the user to pull up materials during the lecture remotely through voice.
+              .col-lg-4.col-md-6.text-center
+                .service-box.mt-5.mx-auto.team-member
+                  h3.mb-3 Record your lecture
+                  p.text-faded.mb-5 Speech Flow enables the user to record the lecture. In addition, the recorded lecture can also be converted into text.
+              .col-lg-4.col-md-6.text-center
+                .service-box.mt-5.mx-auto.team-member
+                  h3.mb-3 Control with Voice
+                  p.text-faded.mb-5 Speech Flow enables the user to control the presentation through the voice.
 
-  br
-  a(href = 'url') submit a lesson info
-  br
-  a(href = 'connection') connect your phone
+      .carousel-item
+        header.masthead.text-center.text-white.d-flex
+          .container.my-auto
+            .row
+              .col-lg-12.text-center
+                h2.section-heading Our Amazing Team
+                hr.my-4
+            .row
+              .col-sm-3
+                .team-member
+                  img.mx-auto.rounded-circle(src='img/tim.jpg' alt='')
+                  h4 Tim Hickey
+                  p.text-faded.mb-5 Guidance Professor
+                  a(href='mailto:your-email@your-domain.com') tjhickey@brandeis.edu
+              .col-sm-3
+                .team-member
+                  img.mx-auto.rounded-circle(src='img/1.PNG' alt='')
+                  h4 Sam Ruditsky
+                  p.text-faded.mb-5 Project Member
+                  a(href='mailto:your-email@your-domain.com') sruditsky@brandeis.edu
+              .col-sm-3
+                .team-member
+                  img.mx-auto.rounded-circle(src='img/2.PNG' alt='')
+                  h4 Huaigu Lin
+                  p.text-faded.mb-5 Project Member
+                  a(href='mailto:your-email@your-domain.com') kevinlinhg@brandeis.edu
+              .col-sm-3
+                .team-member
+                  img.mx-auto.rounded-circle(src='img/3.PNG' alt='')
+                  h4 Joesph Kim
+                  p.text-faded.mb-5 Project Member
+                  a(href='mailto:your-email@your-domain.com') hahagugi@brandeis.edu
+            .container.my-auto
+              .row
+                .col-lg-8.mx-auto.text-center
+                  p.mb-5
+                    | Are there is any questions or feedbacks? Give us a call or send us an email and we will get back to you as soon as possible!
+
+    a.carousel-control-prev(href='#carouselExampleControls' role='button' data-slide='prev')
+      span.carousel-control-prev-icon(aria-hidden='true')
+      span.sr-only Previous
+    a.carousel-control-next(href='#carouselExampleControls' role='button' data-slide='next')
+      span.carousel-control-next-icon(aria-hidden='true')
+      span.sr-only Next
