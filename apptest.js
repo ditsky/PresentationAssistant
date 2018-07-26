@@ -1,4 +1,5 @@
 const
+  opn = require('opn'),
   createError = require('http-errors'),
   cookieParser = require('cookie-parser'),
   keySender = require('node-key-sender'),
@@ -140,12 +141,12 @@ function findNgrok(){
 }
 
 function random(){
-  
+
   console.log('picking random student')
 }
 
 function link(url){
-
+  opn(url)
   console.log(url)
 }
 
@@ -165,6 +166,7 @@ function process_request(req, res, next){
       url: req.body.link
     })
     link(link.url);
+    res.locals.output = "opening link"
   } else if (req.body.msg == 'random'){
     random();
     res.locals.output = "Sam"
@@ -174,12 +176,10 @@ function process_request(req, res, next){
     console.log('no command recieved')
     res.locals.output = "Failed"
   }
-  console.log('before next')
   next()
 }
 
 app.post('/get', process_request, function(req,res){
-  console.log('inside /get')
   console.log(JSON.stringify(req.body, null, 2));
   console.dir(res.locals.output)
   res.json({"msg": res.locals.output});

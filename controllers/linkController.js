@@ -38,6 +38,8 @@ exports.saveLink = (req, res) => {
     url: req.body.url
   });
 
+  let newConnection = createUser(userID)
+
   newLink
     .save()
     .then(() => {
