@@ -78,7 +78,6 @@ keySender.execute = function(arrParams) {
 function nextSlide(){
   var data = 'down';
   console.log(data);
-  console.dir(keys)
   if (data && keys && keys.includes(data)) {
 
     try {
