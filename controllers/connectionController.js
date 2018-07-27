@@ -15,7 +15,7 @@ exports.sendUserData = (req, res) => {
     .then(response => {
       console.log('sent');
       console.log(response.data.msg);
-      res.render('connection', { response: 'You are Connected!' });
+      res.render('about', { response: 'You are Connected!' });
     })
     .catch(error => {
       console.log(error);

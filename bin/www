@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var app = require('../apptest');
+var app = require('../app');
 var debug = require('debug')('presentationassistant:server');
 var http = require('http');
 
