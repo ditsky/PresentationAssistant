@@ -8,7 +8,6 @@ const
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
   connectionController = require('./controllers/connectionController'),
-  //auth = require('./config/auth'),
   bodyParser = require('body-parser')
   path = require('path'),
   exec = require('child_process').exec,
@@ -131,11 +130,6 @@ function goTo(slideNum){
   }
 }
 
-function raiseVolume(){
-  console.log('raising volume')
-  keySender.sendCombination(['meta', 'f12']);
-}
-
 function space(){
   var data = 'space';
   console.log(data);
@@ -161,7 +155,7 @@ function closeWindow(){
   }
 }
 
-function exitPresentation(){
+function endPresentation(){
   var data = 'escape';
   console.log(data);
   if (data && keys.includes(data)) {
@@ -173,9 +167,19 @@ function exitPresentation(){
   }
 }
 
-function random(){
-
-  console.log('picking random student')
+function random(req,res,next){
+  const Student = require('./models/student');
+  Student.find({})
+  .exec()
+  .then(students => {
+    var rand = students[Math.floor(Math.random()*students.length)];
+    res.locals.output = rand.name;
+    next();
+  })
+  .catch(error => {
+    console.log(error.message);
+    res.locals.output = "error selecting student"
+  })
 }
 
 function link(name){
@@ -190,7 +194,6 @@ function link(name){
     console.log(error.message);
     res.locals.output = "the link has not been entered"
   })
-  console.log(url)
 }
 
 function process_request(req, res, next){
@@ -199,28 +202,34 @@ function process_request(req, res, next){
   console.log(req.body)
   if (req.body.msg == 'next'){
     nextSlide();
+    next()
   } else if (req.body.msg == 'goTo'){
     var slideNum = req.body.num;
     goTo(slideNum);
+    next()
   } else if (req.body.msg == 'back'){
     backSlide();
+    next()
   } else if (req.body.msg == 'link'){
     link(req.body.name);
     res.locals.output = "opening link"
+    next()
   } else if (req.body.msg == 'random'){
-    random();
-    res.locals.output = "Sam"
+    random(req,res,next);
+  } else if (req.body.msg == "end"){
+    endPresentation();
+    next()
   } else if (req.body.msg == "space"){
     space();
+    next()
   } else if (req.body.msg == "closeWindow"){
     closeWindow();
-  } else if (req.body.msg == 'raiseVolume') {
-    raiseVolume();
+    next()
   } else {
     console.log('no command recieved')
     res.locals.output = "Failed"
+    next()
   }
-  next()
 }
 
 app.post('/get', process_request, function(req,res){
