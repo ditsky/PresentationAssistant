@@ -167,7 +167,7 @@ function endPresentation(){
   }
 }
 
-function random(req,res,next){
+function randomStudent(req,res,next){
   const Student = require('./models/student');
   Student.find({})
   .exec()
@@ -215,7 +215,7 @@ function process_request(req, res, next){
     res.locals.output = "opening link"
     next()
   } else if (req.body.msg == 'random'){
-    random(req,res,next);
+    randomStudent(req,res,next);
   } else if (req.body.msg == "end"){
     endPresentation();
     next()
