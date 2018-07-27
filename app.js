@@ -11,7 +11,28 @@ const
   bodyParser = require('body-parser')
   path = require('path'),
   exec = require('child_process').exec,
-  express = require('express')
+  express = require('express'),
+  ngrok = require('ngrok')
+
+//connecting to ngrok
+
+let ngrokurl = false
+
+function toNgrok(req, res, next){
+  if (ngrokurl) {
+    res.render('about', {url:ngrokurl})
+  } else {
+    ngrok.connect(8081)
+         .then((url)=>{
+             ngrokurl = url; console.log("urlB " + url)
+             res.render('about', {url:url})
+           })
+         .catch(error => {
+           console.log("asd " + error);
+           next()
+           })
+  }
+}
 
 
 var app = express(); //initialize an express server for gui
@@ -237,7 +258,7 @@ app.post('/get', process_request, function(req,res){
   res.json({"msg": res.locals.output});
 });
 
-app.get('/about', function(req, res) {
+app.get('/about', toNgrok, function(req, res) {
   console.log('The request is: ')
   //console.dir(req)
   console.log(req.headers['user-agent'])

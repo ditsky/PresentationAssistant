@@ -6,11 +6,11 @@ block content
     .container.my-auto
       .row
         p1 #{response}
-      form(method="post" action="sendUserData")
-        .form-group
-          h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') Ngrok https
-          input.form-control(name='ngrok' placeholder='Enter Ngrok http')
-          h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') User Code
-          input.form-control(name='code' placeholder='Enter Code')
-        //a.btn.btn-light.btn-xl.js-scroll-trigger(type='submit') Get Started!
-        button.btn.btn-light(type='submit') Submit
+      if url
+        form(method="post" action="sendUserData")
+          .form-group
+            input.form-control(name='ngrok' type ='hidden' value=url)
+            h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') User Code
+            input.form-control(name='code' placeholder='Enter Code')
+          //a.btn.btn-light.btn-xl.js-scroll-trigger(type='submit') Get Started!
+          button.btn.btn-light(type='submit') Submit
