@@ -3,21 +3,38 @@ const Link = require('../models/link');
 const Student = require('../models/student');
 const opn = require('opn');
 
+
+exports.getAllStudents = ( req, res) => {
+  Student.find( {} )
+    .exec()
+    .then( ( students ) => {
+      getAllLinks(req,res,students)
+    } )
+    .catch( ( error ) => {
+      console.log( error.message );
+      return [];
+    } )
+    .then( () => {
+      console.log( 'student promise complete' );
+    } );
+};
+
 // this displays all of the skills
-exports.submitLink = (req, res) => {
+function getAllLinks (req, res, students) {
   //console.log('in getAllLinks');
   Link.find({})
     .exec()
     .then(links => {
-      res.render('url', { links: links });
+      console.log('rendering')
+      res.render('url', { links: links, students: students });
     })
     .catch(error => {
       console.log(error.message);
       return [];
-    })
-    .then(() => {
-      console.log('link promise complete');
-    });
+    } )
+    .then( () => {
+      console.log( 'go to link promise complete' );
+    } );
 };
 
 exports.goToLink = (req, res) => {
@@ -34,17 +51,18 @@ exports.goToLink = (req, res) => {
 
 exports.saveLink = (req, res) => {
   //console.dir(req)
+  req.body.urlname = req.body.urlname.toLowerCase();
   let newLink = new Link({
-    name: req.body.name,
+    name: req.body.urlname,
     url: req.body.url
   });
 
-  let newConnection = createUser(userID)
+  //let newConnection = createUser(userID)
 
   newLink
     .save()
     .then(() => {
-      res.render('url');
+      res.redirect('/url');
     })
     .catch(error => {
       res.send(error);
@@ -59,7 +77,7 @@ exports.saveStudent = (req, res) => {
   newStudent
     .save()
     .then(() => {
-      res.render('url');
+      res.redirect('/url');
     })
     .catch(error => {
       res.send(error);

@@ -12,20 +12,20 @@ const
   path = require('path'),
   exec = require('child_process').exec,
   express = require('express'),
-  ngrok = require('ngrok')
-
+  ngrok = require('ngrok'),
+  open = require('open')
 //connecting to ngrok
 
 let ngrokurl = false
 
 function toNgrok(req, res, next){
   if (ngrokurl) {
-    res.render('about', {url:ngrokurl})
+    res.render('code', {url:ngrokurl})
   } else {
     ngrok.connect(8081)
          .then((url)=>{
              ngrokurl = url; console.log("urlB " + url)
-             res.render('about', {url:url})
+             res.render('code', {url:url})
            })
          .catch(error => {
            console.log("asd " + error);
@@ -34,6 +34,8 @@ function toNgrok(req, res, next){
   }
 }
 
+//open the site
+open('http://localhost:8081/');
 
 var app = express(); //initialize an express server for gui
 var slide = 1; //current slide number
@@ -46,6 +48,28 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('we are connected!');
+});
+
+//connect monggoDB on node.js without terminal opening
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+const url = 'mongodb://localhost:27017';
+const dbName = 'myProject';
+
+MongoClient.connect(url, function(err,client) {
+  assert.equal(null, err);
+  console.log("Connected successfully to server");
+  const db = client.db(dbName);
+  client.close();
+
+  /*
+  if (err) {
+    console.log("a" + err);
+  } else {
+    console.log("Connected to the end");
+  }
+  db.close();
+  */
 });
 
 // view engine setup
@@ -63,6 +87,7 @@ app.use(bodyParser.json());
 // this handles all static routes ...
 // so don't name your routes so they conflict with the public folders
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 
 //Monkey patching the node-key-sender library to fix jar path issues
@@ -202,7 +227,26 @@ function randomStudent(req,res,next){
   })
 }
 
+// function randomGroups(req,res,num){
+//   Student.find({})
+//   .exec()
+//   .then(students => {
+//     var array = students;
+//     while (array.length > 0) {
+//       array.push(array.splice(0, num));
+//     }
+//     //for (var i=0; i<arr)
+//   //  res.locals.output
+//   })
+//   .catch(error => {
+//     console.log(error.message);
+//     res.locals.output = "error making groups"
+//   })
+//
+// }
+
 function link(name){
+  endPresentation();
   const Link = require('./models/link');
   Link.find({name:name})
 	.exec()
@@ -212,7 +256,7 @@ function link(name){
     })
   .catch(error => {
     console.log(error.message);
-    res.locals.output = "the link has not been entered"
+    //res.locals.output = "the link has not been entered"
   })
 }
 
@@ -258,14 +302,14 @@ app.post('/get', process_request, function(req,res){
   res.json({"msg": res.locals.output});
 });
 
-app.get('/about', toNgrok, function(req, res) {
+app.get('/code', toNgrok, function(req, res) {
   console.log('The request is: ')
   //console.dir(req)
   console.log(req.headers['user-agent'])
-  res.render('about');
+  res.render('code');
 });
 app.post('/sendUserData', connectionController.sendUserData);
-app.get('/url', linkController.submitLink);
+app.get('/url', linkController.getAllStudents);
 app.post('/saveLink', linkController.saveLink);
 app.post('/saveStudent', linkController.saveStudent);
 
