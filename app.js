@@ -202,6 +202,24 @@ function randomStudent(req,res,next){
   })
 }
 
+// function randomGroups(req,res,num){
+//   Student.find({})
+//   .exec()
+//   .then(students => {
+//     var array = students;
+//     while (array.length > 0) {
+//       array.push(array.splice(0, num));
+//     }
+//     //for (var i=0; i<arr)
+//   //  res.locals.output
+//   })
+//   .catch(error => {
+//     console.log(error.message);
+//     res.locals.output = "error making groups"
+//   })
+//
+// }
+
 function link(name){
   endPresentation();
   const Link = require('./models/link');
