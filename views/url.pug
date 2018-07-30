@@ -1,22 +1,48 @@
-extends layout
+extends layoutBS
 
 block content
-  h1 Presentation Assistant
-  br
-  p1 Upload your url:
-  br
+  
+  //- background.masthead.text-center.text-white.d-flex
+  //-   .container.my-auto
+  //-     .row
+  //-       p1 #{response}
+  //-     form(method="post" action="sendUserData")
+  //-       .form-group
+  //-         input.form-control(name='ngrok' type ='hidden' value=url)
+  //-         h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') User Code
+  //-         input.form-control(name='code' placeholder='Enter Code')
+  //-       //a.btn.btn-light.btn-xl.js-scroll-trigger(type='submit') Get Started!
+  //-       button.btn.btn-light(type='submit') Submit
+
+
+  deepground.masthead.text-center.text-white.d-flex
+    .container.my-auto
+      .row
+      form(method="post" action="saveLink")
+        .form-group
+          h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') Link Name:
+          input.form-control(name='urlname' type='text' placeholder='Enter link name')
+          h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') Link URL:
+          input.form-control(name='url' type='text' placeholder='Enter link url')
+        button.btn.btn-primary(type='submit') Submit
+        hr
+        ol.section-heading.text-left.text-white.label
+          each link in links
+            li #{link.name} --
+              i #{link.url}
+  
+      .row
+      form(method="post" action="saveStudent")
+        .form-group
+          h2.section-heading.text-left.text-white.label(for='exampleInputEmail1') Students:
+          input.form-control(name='student' placeholder='Enter student')
+        button.btn.btn-primary(type='submit') Submit
+        hr
+        ol.section-heading.text-left.text-white.label
+          each student in students
+            li #{student.name}
   
       
-  form(method="post" action="saveLink")
-    .form-group
-      label(for='exampleInputEmail1') URL
-      input#exampleInputEmail1.form-control(name='url' type='url' aria-describedby='urlHelp' placeholder='Enter url')
-    button.btn.btn-primary(type='submit') Submit
+          
     
-    
-  form(method="post" action="saveStudent")
-    .form-group
-      label(for='exampleInputEmail1') Student
-      input#exampleInputEmail1.form-control(name='student' placeholder='Enter student')
-    button.btn.btn-primary(type='submit') Submit
-  
+            
