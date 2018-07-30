@@ -12,8 +12,8 @@ const
   path = require('path'),
   exec = require('child_process').exec,
   express = require('express'),
-  ngrok = require('ngrok')
-
+  ngrok = require('ngrok'),
+  open = require('open')
 //connecting to ngrok
 
 let ngrokurl = false
@@ -34,6 +34,8 @@ function toNgrok(req, res, next){
   }
 }
 
+//open the site
+open('http://localhost:8081/');
 
 var app = express(); //initialize an express server for gui
 var slide = 1; //current slide number
@@ -46,6 +48,28 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('we are connected!');
+});
+
+//connect monggoDB on node.js without terminal opening
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+const url = 'mongodb://localhost:27017';
+const dbName = 'myProject';
+
+MongoClient.connect(url, function(err,client) {
+  assert.equal(null, err);
+  console.log("Connected successfully to server");
+  const db = client.db(dbName);
+  client.close();
+
+  /*
+  if (err) {
+    console.log("a" + err);
+  } else {
+    console.log("Connected to the end");
+  }
+  db.close();
+  */
 });
 
 // view engine setup
