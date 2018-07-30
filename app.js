@@ -1,51 +1,46 @@
-#! /usr/bin/env node
-
-//print the version of the weblication if command line arguments are passed
-if (
-  process.argv[2] &&
-  (process.argv[2].toLowerCase() === '-v' || process.argv[2] === '--version')
-) {
-  console.log('Slidex v 1.0.7');
-  process.exit(0);
-} else if (process.argv[2]) {
-  console.log('(✖_✖) Nothing I can do about that.');
-  process.exit(0);
-}
-
-const opn = require('opn');
-
-const cookieParser = require('cookie-parser'),
+const
+  opn = require('opn'),
+  createError = require('http-errors'),
+  cookieParser = require('cookie-parser'),
+  keySender = require('node-key-sender'),
   logger = require('morgan'),
+  axios = require('axios'),
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
-  studentsController = require('./controllers/studentsController'),
-  keySender = require('node-key-sender'),
-  ip = require('ip'),
-  qrcode = require('qrcode-terminal'),
-  prompt = require('prompt'),
+  connectionController = require('./controllers/connectionController'),
+  bodyParser = require('body-parser')
   path = require('path'),
   exec = require('child_process').exec,
   express = require('express'),
-  voice = express(), //initialize an express server for gui
-  web = express(), //initialize an express server for vui
-  // socket = express(), //initialize an express server for socket.io
-  server = require('http').Server(voice), // init an http server for dialogflow
-  // socketServer = require('http').Server(socket), // init an http server for socket.io
-  // io = require('socket.io')(socketServer), // not needed for now
-  herokuPORT = process.env.PORT; // THIS IS HEROKU'S PORT NUMBER
+  ngrok = require('ngrok'),
+  open = require('open')
+//connecting to ngrok
 
-//only these keys will be activated by node-key-sender
-keys = ['left', 'right', 'up', 'down', 'space', 'enter'];
+let ngrokurl = false
 
-// //to serve static files for client
-// web.use(express.static(path.join(__dirname, 'public')));
+function toNgrok(req, res, next){
+  if (ngrokurl) {
+    res.render('code', {url:ngrokurl})
+  } else {
+    ngrok.connect(8081)
+         .then((url)=>{
+             ngrokurl = url; console.log("urlB " + url)
+             res.render('code', {url:url})
+           })
+         .catch(error => {
+           console.log("asd " + error);
+           next()
+           })
+  }
+}
 
-// //serve the html page with buttons
-// web.get('/', (req, res) => {
-//   res.sendFile('public/index.html', {
-//     root: __dirname
-//   });
-// });
+//open the site
+open('http://localhost:8081/');
+
+var app = express(); //initialize an express server for gui
+var slide = 1; //current slide number
+
+const keys = ['left', 'right', 'up', 'down', 'space', 'enter', 'control', 'w', 'escape'];
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/PresentationAssistant');
@@ -55,184 +50,45 @@ db.once('open', function() {
   console.log('we are connected!');
 });
 
+//connect monggoDB on node.js without terminal opening
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+const url = 'mongodb://localhost:27017';
+const dbName = 'myProject';
+
+MongoClient.connect(url, function(err,client) {
+  assert.equal(null, err);
+  console.log("Connected successfully to server");
+  const db = client.db(dbName);
+  client.close();
+
+  /*
+  if (err) {
+    console.log("a" + err);
+  } else {
+    console.log("Connected to the end");
+  }
+  db.close();
+  */
+});
+
 // view engine setup
-web.set('views', path.join(__dirname, 'views'));
-web.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
 //middleware to process the req object and make it more useful!
-web.use(logger('dev'));
-web.use(express.json());
-web.use(express.urlencoded({ extended: false }));
-web.use(cookieParser());
-web.use(flash());
-
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(flash());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 // this handles all static routes ...
 // so don't name your routes so they conflict with the public folders
-web.use(express.static(path.join(__dirname, 'public')));
-
-web.get('/url', linkController.goToLink);
-web.post('/saveLink', linkController.saveLink);
-web.post('/saveStudent', studentsController.saveStudent);
+app.use(express.static(path.join(__dirname, 'public')));
 
 
-web.use('/', function(req, res, next) {
-  res.render('index');
-});
-
-var slide = 1;
-var students = [
-  'Sam',
-  'Joseph',
-  'Huaigu',
-  'Marie',
-  'Xuxin',
-  'Arjun',
-  'Casper',
-  'Tim',
-  'Cliffe',
-  'EK',
-  'Gavin',
-  'Jen',
-  'Jialin',
-  'Jierui',
-  'Kelley',
-  'Luis',
-  'Michael',
-  'Sandy',
-  'Spencer',
-  'Xuantong',
-  'Ziqing'
-];
-var selectedStudent = '';
-
-
-//WEBHOOK CODE
-var bodyParser = require('body-parser');
-
-voice.use(bodyParser.json());
-
-voice.post('/hook', function(req, res) {
-  process_request(req, res);
-  var d = new Date();
-  var time = d.toTimeString();
-  console.log(time);
-  if (req.body.queryResult.intent.displayName == 'randomStudent') {
-    console.log('Selected a random student ' + selectedStudent);
-  } else {
-    console.log('Moved to slide ' + slide);
-  }
-});
-
-function process_request(req, res) {
-  var has_async = false;
-  var output_string = 'there was an error';
-  if (req.body.queryResult.intent.displayName == 'nextSlide') {
-    var data = 'down';
-    console.log(data);
-    if (data && keys.includes(data)) {
-      try {
-        keySender.sendKey(data);
-        slide++;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    output_string = 'Moving to the next slide';
-  } else if (req.body.queryResult.intent.displayName == 'goToSlide') {
-    var slideNum = req.body.queryResult.parameters['number-integer'];
-    var data = 'enter';
-    console.log(data);
-    if (data && keys.includes(data)) {
-      try {
-        if (slideNum < 10) {
-          keySender.sendKeys([slideNum, data]);
-        } else {
-          var slideNumStr = slideNum.toString();
-          var length = slideNumStr.length;
-          var array = [];
-          for (var i = 0; i < length; i++) {
-            array.push(slideNumStr.charAt(i));
-          }
-          array.push(data);
-          keySender.sendKeys(array);
-        }
-        slide = slideNum;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    output_string = 'Moving to slide number ' + slideNum;
-  } else if (req.body.queryResult.intent.displayName == 'randomStudent') {
-    var rand = "";
-    has_async = true;
-    /*
-    const Student = require( './models/student' );
-    Student.find( {} )
-      .exec()
-      .then( ( students ) => {
-        rand = students[Math.floor(Math.random() * students.length)].name;
-        callback(null, rand);
-
-      } )
-      .catch( ( error ) => {
-        console.log( error.message );
-        callback(error);
-      } )
-      .then( () => {
-        console.log('student promise complete')
-      } );
-      output_string = 'Selected ' + rand;*/
-
-    studentsController.randomStudent(function(err, rand){
-      if(err){
-        res.status(err.status || 500);
-        res.json(err);
-      } else {
-        output_string = 'Selected ' + rand;
-        res.json({
-         fulfillmentMessages: [],
-         fulfillmentText: output_string,
-         payload: { slack: { text: output_string } },
-         outputContexts: [],
-         source: 'Test Source',
-         followupEventInput: {}
-       });
-      }
-    });
-  } else if (req.body.queryResult.intent.displayName == 'link') {
-    //var url = req.body.queryResult.parameters['url'];
-    //opn(url);
-    linkController.goToLink();
-    output_string = 'we out here';
-
-  } else if (req.body.queryResult.intent.displayName == 'previousSlide') {
-    var data = 'up';
-    console.log(data);
-    if (data && keys.includes(data)) {
-      try {
-        keySender.sendKey(data);
-        slide--;
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    output_string = 'Moving to the previous slide';
-  } else {
-    output_string = 'oh noooooooooooooo';
-  }
-
-  if(!has_async){
-    return res.json({
-      fulfillmentMessages: [],
-      fulfillmentText: output_string,
-      payload: { slack: { text: output_string } },
-      outputContexts: [],
-      source: 'Test Source',
-      followupEventInput: {}
-    });
-  }
-}
-//WEBHOOK CODE ENDS
 
 //Monkey patching the node-key-sender library to fix jar path issues
 keySender.execute = function(arrParams) {
@@ -264,75 +120,218 @@ keySender.execute = function(arrParams) {
   });
 };
 
-// //on new connection to socket.io
-// io.on('connection', function(socket) {
-//   socket.emit('status', 200); //send initial status code
-//   //get button click event and fire robot keyTap
-//   socket.on('key', async function(data) {
-//     console.log(data);
-//     if (data && keys.includes(data)) {
-//       try {
-//         await keySender.sendKey(data);
-//       } catch (error) {
-//         console.log(error);
-//       }
-//     }
-//   });
-// });
+//Hits the down key on the user's keyboard
+function nextSlide(){
+  var data = 'down';
+  console.log(data);
+  if (data && keys && keys.includes(data)) {
 
-//init schema for user input
-// const schema = {
-//   properties: {
-//     portNumber: {
-//       description: 'Type a port number - Press Enter to start with -> ',
-//       default: '8080',
-//       conform: function(value) {
-//         if (/^[0-9]+$/.test(value)) {
-//           //check whether the requested port is in protected range.
-//           if (value >= 1024 && value <= 65535) return true;
-//           else {
-//             schema.properties.portNumber.message =
-//               'Port Number should be within (1024 - 65535) Due to root privilege requirement ';
-//             return false;
-//           }
-//         } else {
-//           schema.properties.portNumber.message =
-//             'Port number should be only numbers';
-//           return false;
-//         }
-//       }
-//     }
-//   }
-// };
+    try {
+      keySender.sendKey(data);
+      slide++;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
 
-//prompt for port to run the server
-// prompt.start();
-// prompt.get(schema, function(err, result) {
-//   //if result is undefined, ie. user tried to key combo to exit or some BS. exit the web
-//   if (!result) {
-//     process.exit(0);
-//   }
-//   //use default port, if input is invalid
-//   const port = result ? result.portNumber : 8081;
-server.listen(herokuPORT, function() {
-  console.log('API server listening...');
+//Hits the up key on the user's keyboard
+function backSlide(){
+  var data = 'up';
+  console.log(data);
+  if (data && keys.includes(data)) {
+   try {
+     keySender.sendKey(data);
+     slide--;
+   } catch (error) {
+     console.log(error);
+   }
+  }
+}
+
+//Uses the slide number from the request to first type the slide number
+//Then hit the enter key since in ppt "number+enter" goes to that slide number
+function goTo(slideNum){
+  var data = 'enter';
+  console.log(data);
+  if (data && keys.includes(data)) {
+    try {
+      if (slideNum < 10) {
+        keySender.sendKeys([slideNum, data]);
+      } else {
+        var slideNumStr = slideNum.toString();
+        var length = slideNumStr.length;
+        var array = [];
+        for (var i = 0; i < length; i++) {
+          array.push(slideNumStr.charAt(i));
+        }
+        array.push(data);
+        keySender.sendKeys(array);
+      }
+      slide = slideNum;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+function space(){
+  var data = 'space';
+  console.log(data);
+  if (data && keys.includes(data)) {
+   try {
+     keySender.sendKey(data);
+   } catch (error) {
+     console.log(error);
+   }
+  }
+}
+
+function closeWindow(){
+  var ctrl = 'control';
+  var w = 'w';
+  console.log(ctrl+w);
+  if (ctrl && w && keys.includes(ctrl) && keys.includes(w)) {
+   try {
+     keySender.sendCombination([ctrl,w]);
+   } catch (error) {
+     console.log(error);
+   }
+  }
+}
+
+function endPresentation(){
+  var data = 'escape';
+  console.log(data);
+  if (data && keys.includes(data)) {
+   try {
+     keySender.sendKey(data);
+   } catch (error) {
+     console.log(error);
+   }
+  }
+}
+
+function randomStudent(req,res,next){
+  const Student = require('./models/student');
+  Student.find({})
+  .exec()
+  .then(students => {
+    var rand = students[Math.floor(Math.random()*students.length)];
+    res.locals.output = rand.name;
+    next();
+  })
+  .catch(error => {
+    console.log(error.message);
+    res.locals.output = "error selecting student"
+  })
+}
+
+// function randomGroups(req,res,num){
+//   Student.find({})
+//   .exec()
+//   .then(students => {
+//     var array = students;
+//     while (array.length > 0) {
+//       array.push(array.splice(0, num));
+//     }
+//     //for (var i=0; i<arr)
+//   //  res.locals.output
+//   })
+//   .catch(error => {
+//     console.log(error.message);
+//     res.locals.output = "error making groups"
+//   })
+//
+// }
+
+function link(name){
+  endPresentation();
+  const Link = require('./models/link');
+  Link.find({name:name})
+	.exec()
+  .then(links => {
+    console.log(links[0].url)
+    opn(links[0].url)
+    })
+  .catch(error => {
+    console.log(error.message);
+    //res.locals.output = "the link has not been entered"
+  })
+}
+
+function process_request(req, res, next){
+  res.locals.output = "Completed"
+  console.log('recieved request: ')
+  console.log(req.body)
+  if (req.body.msg == 'next'){
+    nextSlide();
+    next()
+  } else if (req.body.msg == 'goTo'){
+    var slideNum = req.body.num;
+    goTo(slideNum);
+    next()
+  } else if (req.body.msg == 'back'){
+    backSlide();
+    next()
+  } else if (req.body.msg == 'link'){
+    link(req.body.name);
+    res.locals.output = "opening link"
+    next()
+  } else if (req.body.msg == 'random'){
+    randomStudent(req,res,next);
+  } else if (req.body.msg == "end"){
+    endPresentation();
+    next()
+  } else if (req.body.msg == "space"){
+    space();
+    next()
+  } else if (req.body.msg == "closeWindow"){
+    closeWindow();
+    next()
+  } else {
+    console.log('no command recieved')
+    res.locals.output = "Failed"
+    next()
+  }
+}
+
+app.post('/get', process_request, function(req,res){
+  console.log(JSON.stringify(req.body, null, 2));
+  console.dir(res.locals.output)
+  res.json({"msg": res.locals.output});
 });
-// });
 
-// // catch 404 and forward to error handler
-// web.use(function(req, res, next) {
-//   next(createError(404));
-// });
+app.get('/code', toNgrok, function(req, res) {
+  console.log('The request is: ')
+  //console.dir(req)
+  console.log(req.headers['user-agent'])
+  res.render('code');
+});
+app.post('/sendUserData', connectionController.sendUserData);
+app.get('/url', linkController.getAllStudents);
+app.post('/saveLink', linkController.saveLink);
+app.post('/saveStudent', linkController.saveStudent);
 
-// // error handler
-// web.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.get('/', function(req, res) {
+  res.render('index');
+});
 
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
 
-module.exports = web;
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
