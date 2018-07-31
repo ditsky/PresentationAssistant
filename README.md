@@ -7,7 +7,7 @@ This app recieves http requests from the [speechflow webhook](https://https://sp
 In order to use our app right now, you need to have nodejs and mongo installed on your computer. First open a terminal and run the command mongod, to start a local database. Then, clone the repository and use another terminal window to cd to the PresentationAssistant repository and run the command npm start. The app should automatically open a browser tab with the app running on your computer.
 
 Once the app is running, you should be greeted by this home page:
-![Home Page](/images/logo.png)
+![Home Page](/public/images/SpeechFlowGUI.jpeg)
 
 Every time you launch our app, you have to create a connection from your phone to your laptop.
 So, open the google assistant on your phone and say "Talk to speech flow"
@@ -16,6 +16,7 @@ The bot should return a unique code for you to type into the webapp on your comp
 
 In order to enter the code, click the "enter your code" button on the home page and submit your code in the user code form.
 The page should then display "You are Connected" if the connection was successful. 
+![Code Page](/public/images/SpeechFlowCode.jpeg)
 
 After connecting, you should be able to give commands to your computer through the phone from any of our current functions:
 
@@ -32,6 +33,7 @@ Command | Response
 # Using lecture materials and students
 You can go the page to add links and students to your lesson with the "Lesson Materials" button on the top right of the screen.
 On this screen displays every student and link in your database, along with a form to add students and/or links to the database. Your database will be stored inbetween uses of the app.
+![Materials Page](/public/images/SpeechFlowMaterials.jpeg)
 
 
 
