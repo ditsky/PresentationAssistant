@@ -9,6 +9,7 @@ In order to use our app right now, you need to have nodejs and mongo installed o
 Once the app is running, you should be greeted by this home page:
 ![Home Page](https://github.com/ditsky/PresentationAssistant/blob/master/public/images/SpeechFlowGUI.JPG)
 
+# Connecting
 Every time you launch our app, you have to create a connection from your phone to your laptop.
 So, open the google assistant on your phone and say "Talk to speech flow"
 The assistant should then connect you to our dialogflow bot, and the first command you should always give is "connect"
