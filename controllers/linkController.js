@@ -31,10 +31,10 @@ function getAllLinks (req, res, students) {
     .catch(error => {
       console.log(error.message);
       return [];
-    })
-    .then(() => {
-      console.log('link promise complete');
-    });
+    } )
+    .then( () => {
+      console.log( 'go to link promise complete' );
+    } );
 };
 
 exports.goToLink = (req, res) => {

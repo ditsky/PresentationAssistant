@@ -1,5 +1,4 @@
-const
-  opn = require('opn'),
+const opn = require('opn'),
   createError = require('http-errors'),
   cookieParser = require('cookie-parser'),
   keySender = require('node-key-sender'),
@@ -15,21 +14,23 @@ const
   ngrok = require('ngrok')
 //connecting to ngrok
 
-let ngrokurl = false
+let ngrokurl = false;
 
-function toNgrok(req, res, next){
+function toNgrok(req, res, next) {
   if (ngrokurl) {
-    res.render('code', {url:ngrokurl})
+    res.render('code', { url: ngrokurl });
   } else {
-    ngrok.connect(8081)
-         .then((url)=>{
-             ngrokurl = url; console.log("urlB " + url)
-             res.render('code', {url:url})
-           })
-         .catch(error => {
-           console.log("asd " + error);
-           next()
-           })
+    ngrok
+      .connect(8081)
+      .then(url => {
+        ngrokurl = url;
+        console.log('urlB ' + url);
+        res.render('code', { url: url });
+      })
+      .catch(error => {
+        console.log('asd ' + error);
+        next();
+      });
   }
 }
 
@@ -39,7 +40,17 @@ opn('http://localhost:8081/');
 var app = express(); //initialize an express server for gui
 var slide = 1; //current slide number
 
-const keys = ['left', 'right', 'up', 'down', 'space', 'enter', 'control', 'w', 'escape'];
+const keys = [
+  'left',
+  'right',
+  'up',
+  'down',
+  'space',
+  'enter',
+  'control',
+  'w',
+  'escape'
+];
 
 
 const mongoose = require('mongoose');
@@ -50,6 +61,30 @@ db.once('open', function() {
   console.log('we are connected!');
 });
 
+//connect monggoDB on node.js without terminal opening
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+const url = 'mongodb://localhost:27017';
+const dbName = 'myProject';
+
+MongoClient.connect(
+  url,
+  function(err, client) {
+    assert.equal(null, err);
+    console.log('Connected successfully to server');
+    const db = client.db(dbName);
+    client.close();
+
+    /*
+  if (err) {
+    console.log("a" + err);
+  } else {
+    console.log("Connected to the end");
+  }
+  db.close();
+  */
+  }
+);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -66,7 +101,6 @@ app.use(bodyParser.json());
 // this handles all static routes ...
 // so don't name your routes so they conflict with the public folders
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 //Monkey patching the node-key-sender library to fix jar path issues
 keySender.execute = function(arrParams) {
@@ -99,11 +133,10 @@ keySender.execute = function(arrParams) {
 };
 
 //Hits the down key on the user's keyboard
-function nextSlide(){
+function nextSlide() {
   var data = 'down';
   console.log(data);
   if (data && keys && keys.includes(data)) {
-
     try {
       keySender.sendKey(data);
       slide++;
@@ -114,22 +147,22 @@ function nextSlide(){
 }
 
 //Hits the up key on the user's keyboard
-function backSlide(){
+function backSlide() {
   var data = 'up';
   console.log(data);
   if (data && keys.includes(data)) {
-   try {
-     keySender.sendKey(data);
-     slide--;
-   } catch (error) {
-     console.log(error);
-   }
+    try {
+      keySender.sendKey(data);
+      slide--;
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
 //Uses the slide number from the request to first type the slide number
 //Then hit the enter key since in ppt "number+enter" goes to that slide number
-function goTo(slideNum){
+function goTo(slideNum) {
   var data = 'enter';
   console.log(data);
   if (data && keys.includes(data)) {
@@ -153,56 +186,56 @@ function goTo(slideNum){
   }
 }
 
-function space(){
+function space() {
   var data = 'space';
   console.log(data);
   if (data && keys.includes(data)) {
-   try {
-     keySender.sendKey(data);
-   } catch (error) {
-     console.log(error);
-   }
+    try {
+      keySender.sendKey(data);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-function closeWindow(){
+function closeWindow() {
   var ctrl = 'control';
   var w = 'w';
-  console.log(ctrl+w);
+  console.log(ctrl + w);
   if (ctrl && w && keys.includes(ctrl) && keys.includes(w)) {
-   try {
-     keySender.sendCombination([ctrl,w]);
-   } catch (error) {
-     console.log(error);
-   }
+    try {
+      keySender.sendCombination([ctrl, w]);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-function endPresentation(){
+function endPresentation() {
   var data = 'escape';
   console.log(data);
   if (data && keys.includes(data)) {
-   try {
-     keySender.sendKey(data);
-   } catch (error) {
-     console.log(error);
-   }
+    try {
+      keySender.sendKey(data);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-function randomStudent(req,res,next){
+function randomStudent(req, res, next) {
   const Student = require('./models/student');
   Student.find({})
-  .exec()
-  .then(students => {
-    var rand = students[Math.floor(Math.random()*students.length)];
-    res.locals.output = rand.name;
-    next();
-  })
-  .catch(error => {
-    console.log(error.message);
-    res.locals.output = "error selecting student"
-  })
+    .exec()
+    .then(students => {
+      var rand = students[Math.floor(Math.random() * students.length)];
+      res.locals.output = rand.name;
+      next();
+    })
+    .catch(error => {
+      console.log(error.message);
+      res.locals.output = 'error selecting student';
+    });
 }
 
 // function randomGroups(req,res,num){
@@ -223,67 +256,67 @@ function randomStudent(req,res,next){
 //
 // }
 
-function link(name){
+function link(name) {
   endPresentation();
   const Link = require('./models/link');
-  Link.find({name:name})
-	.exec()
-  .then(links => {
-    console.log(links[0].url)
-    opn(links[0].url)
+  Link.find({ name: name })
+    .exec()
+    .then(links => {
+      console.log(links[0].url);
+      opn(links[0].url);
     })
-  .catch(error => {
-    console.log(error.message);
-    //res.locals.output = "the link has not been entered"
-  })
+    .catch(error => {
+      console.log(error.message);
+      //res.locals.output = "the link has not been entered"
+    });
 }
 
-function process_request(req, res, next){
-  res.locals.output = "Completed"
-  console.log('recieved request: ')
-  console.log(req.body)
-  if (req.body.msg == 'next'){
+function process_request(req, res, next) {
+  res.locals.output = 'Completed';
+  console.log('recieved request: ');
+  console.log(req.body);
+  if (req.body.msg == 'next') {
     nextSlide();
-    next()
-  } else if (req.body.msg == 'goTo'){
+    next();
+  } else if (req.body.msg == 'goTo') {
     var slideNum = req.body.num;
     goTo(slideNum);
-    next()
-  } else if (req.body.msg == 'back'){
+    next();
+  } else if (req.body.msg == 'back') {
     backSlide();
-    next()
-  } else if (req.body.msg == 'link'){
+    next();
+  } else if (req.body.msg == 'link') {
     link(req.body.name);
-    res.locals.output = "opening link"
-    next()
-  } else if (req.body.msg == 'random'){
-    randomStudent(req,res,next);
-  } else if (req.body.msg == "end"){
+    res.locals.output = 'opening link';
+    next();
+  } else if (req.body.msg == 'random') {
+    randomStudent(req, res, next);
+  } else if (req.body.msg == 'end') {
     endPresentation();
-    next()
-  } else if (req.body.msg == "space"){
+    next();
+  } else if (req.body.msg == 'space') {
     space();
-    next()
-  } else if (req.body.msg == "closeWindow"){
+    next();
+  } else if (req.body.msg == 'closeWindow') {
     closeWindow();
-    next()
+    next();
   } else {
-    console.log('no command recieved')
-    res.locals.output = "Failed"
-    next()
+    console.log('no command recieved');
+    res.locals.output = 'Failed';
+    next();
   }
 }
 
-app.post('/get', process_request, function(req,res){
+app.post('/get', process_request, function(req, res) {
   console.log(JSON.stringify(req.body, null, 2));
-  console.dir(res.locals.output)
-  res.json({"msg": res.locals.output});
+  console.dir(res.locals.output);
+  res.json({ msg: res.locals.output });
 });
 
 app.get('/code', toNgrok, function(req, res) {
-  console.log('The request is: ')
+  console.log('The request is: ');
   //console.dir(req)
-  console.log(req.headers['user-agent'])
+  console.log(req.headers['user-agent']);
   res.render('code');
 });
 app.post('/sendUserData', connectionController.sendUserData);
@@ -294,7 +327,6 @@ app.post('/saveStudent', linkController.saveStudent);
 app.get('/', function(req, res) {
   res.render('index');
 });
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
