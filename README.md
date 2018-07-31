@@ -2,7 +2,7 @@
 You must download and run this app on your computer in order to use SpeechFlow to Control your presentations
 [link to SpeechFlow github](https://github.com/ditsky/SpeechFlow)
 
-This app recieves http requests from the [speechflow webhook](https://https://speechflow.herokuapp.com) hosted on heroku in order to send keys to your computer which you specify from speaking to the SpeechFlow bot hosted on the google assistant (not yet publicly released).
+This app recieves http requests from the [speechflow webhook](https://speechflow.herokuapp.com) hosted on heroku in order to send keys to your computer which you specify from speaking to the SpeechFlow bot hosted on the google assistant (not yet publicly released).
 
 In order to use our app right now, you need to have nodejs and mongo installed on your computer. First open a terminal and run the command mongod, to start a local database. Then, clone the repository and use another terminal window to cd to the PresentationAssistant repository and run the command npm start. The app should automatically open a browser tab with the app running on your computer.
 
