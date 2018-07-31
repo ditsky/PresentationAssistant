@@ -23,11 +23,15 @@ Command | Response
 ------------ | -------------
 "next"| Presses the down arrow
 "back" | Presses the up arrow
-"go to (slide number)" | Enters the number given and then the enter key
+"go to slide (slide number)" | Enters the number given and then the enter key
 "pause" or "play" | Presses the space bar
 "end/exit presentation" | Presses the escape key
 "random student" | Selects a random student from your class
 "open the (name) link | Opens a link from the name you specify
+
+# Using lecture materials and students
+You can go the page to add links and students to your lesson with the "Lesson Materials" button on the top right of the screen.
+On this screen displays every student and link in your database, along with a form to add students and/or links to the database. Your database will be stored inbetween uses of the app.
 
 
 
