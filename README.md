@@ -1,4 +1,4 @@
-﻿# PresentationAssistant
+﻿# SpeechFlow app
 You must download and run this app on your computer in order to use SpeechFlow to Control your presentations
 [link to SpeechFlow github](https://github.com/ditsky/SpeechFlow)
 
