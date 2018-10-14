@@ -7,13 +7,16 @@ const opn = require('opn'),
   flash = require('connect-flash'),
   linkController = require('./controllers/linkController'),
   connectionController = require('./controllers/connectionController'),
-  bodyParser = require('body-parser');
-(path = require('path')),
-  (exec = require('child_process').exec),
-  (express = require('express')),
-  (ngrok = require('ngrok'));
-//connecting to ngrok
+  bodyParser = require('body-parser'),
+  path = require('path'),
+  exec = require('child_process').exec,
+  express = require('express'),
+  shell = require('shelljs'),
+  ngrok = require('ngrok'),
+  fs = require('fs'),
+  pdfjsLib = require('pdfjs-dist');
 
+//connecting to ngrok
 let ngrokurl = false;
 
 function toNgrok(req, res, next) {
@@ -270,6 +273,68 @@ function link(name) {
     });
 }
 
+function pdf() {
+  var pdfPath = 'C:/Users/kevin/Desktop/How-to-give-a-proper-lecture.pdf';
+  pdfjsLib
+    .getDocument(pdfPath)
+    .then(function(doc) {
+      var numPages = doc.numPages;
+      console.log('# Document Loaded');
+      console.log('Number of Pages: ' + numPages);
+      console.log();
+
+      var lastPromise; // will be used to chain promises
+      lastPromise = doc.getMetadata().then(function(data) {
+        console.log('# Metadata Is Loaded');
+        console.log('## Info');
+        console.log(JSON.stringify(data.info, null, 2));
+        console.log();
+        if (data.metadata) {
+          console.log('## Metadata');
+          console.log(JSON.stringify(data.metadata.getAll(), null, 2));
+          console.log();
+        }
+      });
+
+      var loadPage = function(pageNum) {
+        return doc.getPage(pageNum).then(function(page) {
+          console.log('# Page ' + pageNum);
+          var viewport = page.getViewport(1.0 /* scale */);
+          console.log('Size: ' + viewport.width + 'x' + viewport.height);
+          console.log();
+          return page
+            .getTextContent()
+            .then(function(content) {
+              // Content contains lots of information about the text layout and
+              // styles, but we need only strings at the moment
+              var strings = content.items.map(function(item) {
+                return item.str;
+              });
+              console.log('## Text Content');
+              console.log(strings.join(' '));
+            })
+            .then(function() {
+              console.log();
+            });
+        });
+      };
+      // Loading of the first page will wait on metadata and subsequent loadings
+      // will wait on the previous pages.
+      for (var i = 1; i <= numPages; i++) {
+        lastPromise = lastPromise.then(loadPage.bind(null, i));
+      }
+      return lastPromise;
+    })
+    .then(
+      function() {
+        console.log('# End of Document');
+      },
+      function(err) {
+        console.error('Error in pdf: ' + err);
+      }
+    );
+}
+
 function process_request(req, res, next) {
   res.locals.output = 'Completed';
   console.log('recieved request: ');
@@ -299,6 +364,9 @@ function process_request(req, res, next) {
   } else if (req.body.msg == 'closeWindow') {
     closeWindow();
     next();
+  } else if (req.body.msg == 'ppt') {
+    pdf();
+    next();
   } else {
     console.log('no command recieved');
     res.locals.output = 'Failed';
@@ -307,8 +375,8 @@ function process_request(req, res, next) {
 }
 
 app.post('/get', process_request, function(req, res) {
-  console.log(JSON.stringify(req.body, null, 2));
-  console.dir(res.locals.output);
+  console.log('in /get log 1: ' + JSON.stringify(req.body, null, 2));
+  console.dir('in /get log 2: ' + res.locals.output);
   res.json({ msg: res.locals.output });
 });
 
