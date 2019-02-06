@@ -1,4 +1,24 @@
 ﻿# SpeechFlow app
+
+#### This is an application that aims to replace traditional presentation tools like PowerPoint, Google Slides and Prezi. It allows lecturers to upload their materials, smoothly transition between multiple media sources and interact with the audience, from any device at the same time. 
+
+## Team
+
+We are a team of three students from Brandeis University: 
+* Joseph Kim: Product Manager (hahagugi@brandeis.edu)
+* Sam Ruditsky: Software Engineer (sruditsky@brandeis.edu)
+* Huaigu Lin: Software Engineer (kevinlinhg@brandeis.edu)
+
+We are the 2019 [**Brandeis SPARK Program**](https://www.brandeis.edu/innovation/grant-programs/spark/index.html) grand prize winner with $5000 funding.
+
+Dr. Tim Hickey (tjhickey@brandeis.edu) is our advisor.
+
+## Notes
+
+The app is still in developing stage. The code you're seeing on this repository is an older version. We have went through multiple pivots and changed many things.
+
+## Instructions
+
 You must download and run this app on your computer in order to use SpeechFlow to Control your presentations
 [link to SpeechFlow github](https://github.com/ditsky/SpeechFlow)
 
@@ -9,7 +29,7 @@ In order to use our app right now, you need to have nodejs and mongo installed o
 Once the app is running, you should be greeted by this home page:
 ![Home Page](https://github.com/ditsky/PresentationAssistant/blob/master/public/images/SpeechFlowGUI.JPG)
 
-# Connecting
+### Connecting
 Every time you launch our app, you have to create a connection from your phone to your laptop.
 So, open the google assistant on your phone and say "Talk to speech flow"
 The assistant should then connect you to our dialogflow bot, and the first command you should always give is "connect"
@@ -31,7 +51,7 @@ Command | Response
 "random student" | Selects a random student from your class
 "open the (name) link | Opens a link from the name you specify
 
-# Using lecture materials and students
+### Using lecture materials and students
 You can go the page to add links and students to your lesson with the "Lesson Materials" button on the top right of the screen.
 On this screen displays every student and link in your database, along with a form to add students and/or links to the database. Your database will be stored inbetween uses of the app.
 ![Materials Page](https://github.com/ditsky/PresentationAssistant/blob/master/public/images/SpeechFlowMaterials.JPG)
