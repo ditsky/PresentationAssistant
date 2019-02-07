@@ -11,7 +11,7 @@ We are a team of three students from Brandeis University:
 
 We are the 2019 [**Brandeis SPARK Program**](https://www.brandeis.edu/innovation/grant-programs/spark/index.html) grand prize winner with $5000 funding.
 
-Dr. Tim Hickey (tjhickey@brandeis.edu) is our advisor.
+Dr. Timothy J. Hickey is our advisor.
 
 ## Notes
 
